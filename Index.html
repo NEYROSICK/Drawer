@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>DRAWER</title>
+        <link rel="icon" href="Images/icon.png" type="image">
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body style="margin: 0px; width: 100%; height: 100%;">
+            <input class="btn btn1" id="btn1" type="button">
+            <input class="btn btn2" id="btn2" type="button">
+            <input class="btn btn3" id="btn3" type="button">
+            <input class="btn btn4" id="btn4" type="button">
+            <input type="color" id="color" value="#DEDCDC">
+            <input class="btn btn5" id="btn5" type="button" onclick="pick()">
+        <div class="slider">
+            <input type="range" orient="vertical" min="5" max="200" value="34" id="fader">
+        </div>
+        <canvas id="canvas" style="display: block">not supported</canvas>
+        <script>
+
+            //canvas
+
+            var
+                canv = document.getElementById('canvas'),
+                btn = document.getElementById('btn'),
+                ctx = canv.getContext('2d'),
+                sayz = 50,
+                coords = [],
+                slider = document.getElementById('fader'),
+                colorInput = document.querySelector('#color'),
+                mausdown = false;
+                color2 = colorInput.value,
+                btn = document.getElementById('btn5');
+            canv.width = window.innerWidth;
+            canv.height = window.innerHeight;
+            sayz = fader.value;
+            ctx.lineWidth = sayz * 2;
+            color2 = "black";
+
+            //code
+
+            window.onload = function(){
+                init();
+                window.addEventListener('resize', init, false)
+            }
+
+            function init(){
+                canv.width = window.innerWidth;
+                canv.height = window.innerHeight;
+                sayz = fader.value;
+                ctx.lineWidth = sayz * 2;
+            }
+
+            colorInput.addEventListener('input',() =>{
+                color2 = colorInput.value;
+                ctx.fillStyle = color2;
+                ctx.strokeStyle = color2;
+
+                var btn = document.getElementById('btn5');
+                btn.style.background = color2;
+                btn.style.backgroundImage = "url('images/fill.png')";
+                btn.style.backgroundPosition = "center";
+                btn.style.backgroundRepeat = "no-repeat";
+            })
+
+            canv.addEventListener('mousedown', function(e){
+                mausdown = true;
+            })
+
+            canv.addEventListener('mouseup', function(){
+                mausdown = false;
+                ctx.beginPath();
+                coords.push('mouseup')
+            })
+
+            slider.oninput = function(){
+                sayz = this.value;
+                ctx.lineWidth = sayz * 2;
+            }
+
+            canv.addEventListener('mousemove', function(e){
+                if(mausdown){
+                    coords.push([e.clientX, e.clientY])
+                    ctx.lineTo(e.clientX, e.clientY,);
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.arc(e.clientX, e.clientY, sayz, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.moveTo(e.clientX, e.clientY);
+                }
+            })
+
+            function clear(){
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canv.width, canv.height);
+
+                ctx.beginPath();
+                ctx.fillStyle = color2;
+                ctx.strokeStyle = color2;
+                
+            }
+            
+            function save(){
+                localStorage.setItem('coords', JSON.stringify(coords));
+            }
+
+            function replay(){
+                var timer = setInterval(function(){
+                    if (!coords.length){
+                        clearInterval(timer);
+                        ctx.beginPath();
+                        return;
+                    }
+                    var
+                        crd = coords.shift(),
+                        e = {
+                            clientX: crd["0"],
+                            clientY: crd["1"]
+                        };
+                    ctx.lineTo(e.clientX, e.clientY);
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.arc(e.clientX, e.clientY, sayz, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.moveTo(e.clientX, e.clientY);
+                }, 1);
+            }
+
+            document.addEventListener('keydown', function(e){
+                if(e.keyCode == 67){
+                    clear();
+                }
+                if(e.keyCode == 83){
+                    save();
+                }
+                if(e.keyCode == 82){
+                    coords = JSON.parse(localStorage.getItem('coords'));
+                    replay();
+                }
+            });
+
+            //colors
+
+                btn1.onclick = function() {
+                    color2 = "white";
+                    ctx.fillStyle = color2;
+                    ctx.strokeStyle = color2;
+                };
+                btn2.onclick = function() {
+                    color2 = "black";
+                    ctx.fillStyle = color2;
+                    ctx.strokeStyle = color2;
+                };
+                btn3.onclick = function() {
+                    color2 = "pink";
+                    ctx.fillStyle = color2;
+                    ctx.strokeStyle = color2;
+                };
+                btn4.onclick = function() {
+                    color2 = "rgb(253, 229, 208)";
+                    ctx.fillStyle = color2;
+                    ctx.strokeStyle = color2;
+                };
+
+                function pick(){
+                    colorInput.click();
+                    color2 = colorInput.value;
+                    ctx.fillStyle = color2;
+                    ctx.strokeStyle = color2;
+            }
+
+            </script>
+    </body>
+</html>
